@@ -1,5 +1,6 @@
+/* Aplicar la nueva fuente a todo el documento */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -7,13 +8,11 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    
 }
 
 h1 {
     text-align: center;
     position: absolute;
-    
 }
 
 #title {
@@ -22,18 +21,38 @@ h1 {
 }
 
 #map {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    margin-bottom: 20px;
+}
+
+/* Estilo del contenedor de los países con mayor porcentaje de gasto militar */
+#top-countries {
     position: absolute;
-	
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border: 2px solid #444;
+    z-index: 1000;
+    font-size: 16px; /* Tamaño de la fuente ajustado */
+    font-weight: 400; /* Peso normal de la fuente */
+    font-family: 'Roboto', sans-serif;
 }
 
-/* Style for the slider */
-.slider-container {
-    text-align: center;
-    margin-bottom: 10px;
+#top-countries h3 {
+    margin-top: 0;
+    font-weight: 700; /* Hacer el título más grueso */
 }
 
-input[type=range] {
-    width: 300px;
+#top-countries ul {
+    list-style: none;
+    padding: 0;
+}
+
+#top-countries li {
+    margin-bottom: 5px;
 }
 
 /* Estilo de la leyenda dentro del mapa */
@@ -47,11 +66,9 @@ input[type=range] {
     font-size: 14px;
 }
 
-
 .legend i {
     width: 18px;
     height: 18px;
     display: inline-block;
     margin-right: 8px;
 }
-
