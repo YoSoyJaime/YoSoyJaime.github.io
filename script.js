@@ -5,16 +5,6 @@ const topCountries = [
     { 'Name': 'Líbano', 'CODE': 'LBN', 'porcentaje': 5.021256792997223, 'lat': 33.8547, 'lng': 35.8623, 'endLat': 35, 'endLng': -35 }
 ];
 
-// Obtener el contenedor donde se mostrará la lista
-const countryList = document.getElementById('country-list');
-
-// Iterar sobre los países y agregar un elemento de lista (li) por cada uno
-topCountries.forEach(country => {
-    const listItem = document.createElement('li');
-    listItem.innerText = `${country.Name}: ${country.porcentaje.toFixed(2)}%`;
-    countryList.appendChild(listItem);
-});
-
 // Crear el gráfico Plotly
 const myPlot = document.getElementById('map');
 
