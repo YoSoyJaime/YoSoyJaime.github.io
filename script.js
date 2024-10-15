@@ -1,8 +1,8 @@
 // Datos de los países con mayor porcentaje de gasto militar
 const topCountries = [
-    {'Name': 'Arabia Saudita', 'CODE': 'SAU', 'porcentaje': 8.589038975798779}, 
-    {'Name': 'Kuwait', 'CODE': 'KWT', 'porcentaje': 5.280170635707574}, 
-    {'Name': 'Líbano', 'CODE': 'LBN', 'porcentaje': 5.021256792997223}
+    { 'Name': 'Arabia Saudita', 'CODE': 'SAU', 'porcentaje': 8.589038975798779, 'lat': 24.7136, 'lng': 46.6753, 'endLat': -25, 'endLng': -15 },
+    { 'Name': 'Kuwait', 'CODE': 'KWT', 'porcentaje': 5.280170635707574, 'lat': 29.3759, 'lng': 47.9774, 'endLat': -20, 'endLng': 80 },
+    { 'Name': 'Líbano', 'CODE': 'LBN', 'porcentaje': 5.021256792997223, 'lat': 33.8547, 'lng': 35.8623, 'endLat': 35, 'endLng': -35 }
 ];
 
 // Obtener el contenedor donde se mostrará la lista
@@ -50,6 +50,74 @@ ranges.forEach(range => {
         showscale: false, // No mostrar escala de colores
         name: range.label, // Nombre para la leyenda
         showlegend: true, // Mostrar la leyenda
+        hoverinfo: 'none'
+    });
+});
+
+// Añadir flechas y etiquetas ajustables
+topCountries.forEach(country => {
+    // Flecha con contorno blanco
+    data.push({
+        type: 'scattergeo',
+        mode: 'lines+markers',
+        lat: [country.lat, country.endLat],
+        lon: [country.lng, country.endLng],
+        line: {
+            width: 2.5,  // Línea más gruesa para crear la apariencia del borde
+            color: 'white',  // Color del borde de la flecha
+        },
+        marker: {
+            size: 10,  // Tamaño del marcador para el contorno en los extremos
+            color: 'blue',  // Color del contorno azul
+            line: {
+                width: 0.5,  // Ancho del contorno blanco
+                color: 'white'  // Contorno blanco
+            }
+        },
+        showlegend: false, // No mostrar en la leyenda
+        hoverinfo: 'none'
+    });
+
+    // Flecha principal
+    data.push({
+        type: 'scattergeo',
+        mode: 'lines+markers',
+        lat: [country.lat, country.endLat],
+        lon: [country.lng, country.endLng],
+        line: {
+            width: 1.5,  // Línea más delgada encima del borde blanco
+            color: 'blue',  // Color principal de la flecha
+        },
+        marker: {
+            size: 0,  // Ocultar el marcador, solo queremos la flecha principal azul
+            color: 'blue'
+        },
+        showlegend: false, // No mostrar en la leyenda
+        hoverinfo: 'none'
+    });
+
+    // Etiqueta del país y el porcentaje en el extremo de la flecha, con fondo simulado
+    data.push({
+        type: 'scattergeo',
+        mode: 'text+markers',
+        lat: [country.endLat],
+        lon: [country.endLng],
+        text: `${country.Name}<br>${country.porcentaje.toFixed(2)}%`,
+        textposition: 'middle center',
+        textfont: {
+            family: 'Arial',
+            size: 7,  // Reduced font size
+            color: 'black'
+        },
+        marker: {
+            size: 50,  // Hide the actual marker, just use text
+            color: 'rgba(255, 255, 255, 1)', // White background for text
+            line: {
+                color: 'blue', // Light blue border around text
+                width: 1.5
+            }
+        },
+        showlegend: false, // No mostrar en la leyenda
         hoverinfo: 'none'
     });
 });
