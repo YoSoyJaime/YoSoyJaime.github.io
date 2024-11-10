@@ -127,7 +127,9 @@ function initializeMap() {
     map = L.map('map', {
         center: [20, 0],  // Centro del mapa
         zoom: 2,         // Nivel de zoom inicial
-        zoomControl: false  // Deshabilitar los botones de zoom
+        zoomControl: false,  // Deshabilitar los botones de zoom
+        minZoom: 2,  // Límite mínimo de zoom
+        maxZoom: 10  // Límite máximo de zoom
     });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     }).addTo(map);
