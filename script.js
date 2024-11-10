@@ -3,29 +3,108 @@ let geojsonLayer;  // Layer to hold the country data
 let militaryData = {};  // Store processed data for easy access
 let geojsonData;  // Store GeoJSON data globally for reuse
 
-// Función para crear la leyenda de colores en el mapa
+// Function to create the legend for color coding on the map
 function addLegendToMap() {
-    const legend = L.control({ position: 'bottomright' });  // Posicionamos la leyenda en la esquina inferior derecha
+    const legend = L.control({ position: 'bottomright' });  // Position legend in the bottom-right corner
 
     legend.onAdd = function (map) {
         const div = L.DomUtil.create('div', 'info legend'),
-              grades = [5000000000, 10000000000, 20000000000, 50000000000, 100000000000],  // Valores de referencia
+              grades = [0.1, 1, 2, 5, 10, 20],  // Percentage values for legend categories
               labels = [];
 
-        // Creamos un encabezado para la leyenda
-        div.innerHTML += '<strong>Percentage of GDP used for Military Expenditure</strong><br>';
+        // Create a header for the legend
+        div.innerHTML += '<strong>Percentage of GDP used for Military Expenditure (%)</strong><br>';
 
-        // Recorremos los intervalos y generamos una etiqueta con un bloque de color para cada rango
+        // Loop through intervals and generate a label with a colored square for each range
         for (let i = 0; i < grades.length; i++) {
             div.innerHTML +=
-                '<i style="background:' + getColor(grades[i] + 1) + '; width: 18px; height: 18px; display: inline-block;"></i> ' +
+                '<i style="background:' + getColor(grades[i]) + '; width: 18px; height: 18px; display: inline-block;"></i> ' +
                 grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
         }
 
         return div;
     };
 
-    legend.addTo(map);  // Añadimos la leyenda al mapa
+    legend.addTo(map);  // Add the legend to the map
+}
+
+function getColor(percentage) {
+    // Assign colors based on percentage values
+    return percentage > 20 ? '#800026' :
+           percentage > 10 ? '#BD0026' :
+           percentage > 5  ? '#E31A1C' :
+           percentage > 2  ? '#FC4E2A' :
+           percentage > 1  ? '#FD8D3C' :
+           percentage > 0.1 ? '#FFEDA0' :
+                             '#ccc';  // Default color for no data or very low percentage
+}
+
+function createMap(geojsonData, year) {
+    if (geojsonLayer) {
+        map.removeLayer(geojsonLayer);  // Remove the existing layer before adding a new one
+    }
+
+    geojsonLayer = L.geoJson(geojsonData, {
+        style: feature => {
+            const country = feature.properties.name;
+            const data = militaryData[country] && militaryData[country][year] 
+                         ? militaryData[country][year] 
+                         : { porcentaje: 0 };
+
+            const percentage = data.porcentaje;  // Use the calculated percentage value
+
+            return {
+                fillColor: getColor(percentage),
+                weight: 1,
+                opacity: 1,
+                color: 'white',
+                fillOpacity: 0.7,
+                transition: 'fill-opacity 0.5s ease' // Smooth transitions
+            };
+        },
+        onEachFeature: (feature, layer) => {
+            const country = feature.properties.name;
+            const data = militaryData[country] && militaryData[country][year] 
+                         ? militaryData[country][year] 
+                         : { porcentaje: 0 };
+
+            layer.bindTooltip(`<strong>${country}</strong><br>Percentage of GDP: ${data.porcentaje.toFixed(2)}%`);
+
+            // Handle click event to show more information
+            layer.on('click', function() {
+                showCountryDetails(country, year);
+            });
+        }
+    }).addTo(map);
+}
+
+function loadMilitaryData() {
+    fetch('./DataToUse.json')  // Load the JSON file
+        .then(response => response.json())
+        .then(data => {
+            militaryData = processMilitaryData(data);
+            initializeMap();  // Initialize the map once data is loaded
+        })
+        .catch(error => {
+            console.error('Error loading military data:', error);
+        });
+}
+
+function processMilitaryData(data) {
+    const processedData = {};
+
+    data.forEach(entry => {
+        const country = entry.Name;
+        const year = entry.Year;
+        if (!processedData[country]) {
+            processedData[country] = {};
+        }
+        processedData[country][year] = {
+            porcentaje: entry.porcentaje
+        };
+    });
+
+    return processedData;
 }
 
 function initializeMap() {
@@ -35,103 +114,20 @@ function initializeMap() {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    addLegendToMap();  // Añadir la leyenda justo después de crear el mapa
+    addLegendToMap();  // Add legend after creating the map
+    fetchGeoJsonData();  // Load GeoJSON data
 }
 
-// Load GeoJSON and CSV data, then initialize the map
-function loadData() {
-    d3.json('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json').then(data => {
-        geojsonData = data;  // Store the GeoJSON data
-        Promise.all([
-            d3.csv('Countries GDP 1960-2020.csv'),  // Cargamos el PIB pero no lo usamos en este ejemplo
-            d3.csv('Military Expenditure.csv')
-        ]).then(([gdpData, milExpenditureData]) => {
-            militaryData = processMilitaryExpenditureData(milExpenditureData);
-
-            createMap(geojsonData, 2020);  // Initially display data for 2020
+function fetchGeoJsonData() {
+    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        .then(response => response.json())
+        .then(data => {
+            geojsonData = data;
+            createMap(geojsonData, 2018);  // Initially display data for 2020
+        })
+        .catch(error => {
+            console.error('Error loading GeoJSON data:', error);
         });
-    });
-}
-
-// Process data to calculate military expenditure for all years
-function processMilitaryExpenditureData(milExpenditureData) {
-    const countryNameMapping = {
-        "United States": "United States of America",
-        "Russian Federation": "Russia",
-        "Venezuela (Bolivarian Republic of)": "Venezuela",
-        "Congo, Dem. Rep.": "Democratic Republic of the Congo",
-        "Congo, Rep.": "Republic of the Congo",
-        "Cote d'Ivoire": "Ivory Coast",
-    };
-
-    const militaryExpenditureData = {};
-
-    milExpenditureData.forEach(milRow => {
-        let country = milRow["Name"];
-        if (countryNameMapping[country]) {
-            country = countryNameMapping[country];  // Standardize country name
-        }
-
-        // Initialize military data object for each country
-        militaryExpenditureData[country] = {};
-
-        // Process military expenditure data for each year
-        for (let year = 1960; year <= 2020; year++) {
-            const militaryExpenditure = milRow[year];
-            militaryExpenditureData[country][year] = militaryExpenditure ? +militaryExpenditure : null;
-        }
-    });
-
-    console.log("Processed Military Expenditure Data: ", militaryExpenditureData);  // Log processed data
-    return militaryExpenditureData;
-}
-
-// Create the map based on the selected year
-function createMap(geojsonData, year) {
-    if (geojsonLayer) {
-        map.removeLayer(geojsonLayer);  // Remove the existing layer before adding a new one
-    }
-
-    geojsonLayer = L.geoJson(geojsonData, {
-        style: feature => {
-            const country = feature.properties.name;
-            const expenditure = militaryData[country] && militaryData[country][year] 
-                                ? militaryData[country][year] 
-                                : null;
-
-            return {
-                fillColor: expenditure ? getColor(expenditure) : '#ccc',
-                weight: 1,
-                opacity: 1,
-                color: 'white',
-                fillOpacity: 0.7,
-                transition: 'fill-opacity 0.5s ease' // Transiciones suaves
-            };
-        },
-        onEachFeature: (feature, layer) => {
-            const country = feature.properties.name;
-            const expenditure = militaryData[country] && militaryData[country][year] 
-                                ? militaryData[country][year] 
-                                : 'No data';
-
-            layer.bindTooltip(`<strong>${country}</strong><br>Military Expenditure: ${expenditure}`);
-
-            // Manejar evento click para mostrar más información
-            layer.on('click', function() {
-                showCountryDetails(country, year);
-            });
-        }
-    }).addTo(map);
-}
-
-// Function to get color based on military expenditure amount
-function getColor(expenditure) {
-    return expenditure > 100000000000 ? '#800026' :
-           expenditure > 50000000000  ? '#BD0026' :
-           expenditure > 20000000000  ? '#E31A1C' :
-           expenditure > 10000000000  ? '#FC4E2A' :
-           expenditure > 5000000000   ? '#FD8D3C' :
-                                        '#FFEDA0';
 }
 
 // Event listener for year range slider
@@ -141,17 +137,8 @@ document.getElementById('yearRange').addEventListener('input', function() {
     createMap(geojsonData, year);  // Update map based on the selected year
 });
 
-// Initialize the map and load data (as in your original code)
-initializeMap();
-loadData();
-
-// Add an event listener to the sound button
-document.getElementById('soundButton').addEventListener('click', function() {
-    const audio = new Audio('./sounds/level_1.mp3');  // Reemplaza con la ruta de tu archivo de sonido
-    audio.play().catch(error => {
-        console.error("Error playing sound: ", error);
-    });
-});
+// Load military data and initialize the map
+loadMilitaryData();
 
 
 // Initialize the map and load data
