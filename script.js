@@ -124,8 +124,11 @@ function processMilitaryData(data) {
 }
 
 function initializeMap() {
-    map = L.map('map').setView([20, 0], 2);  // Centro del mapa
-
+    map = L.map('map', {
+        center: [20, 0],  // Centro del mapa
+        zoom: 2,         // Nivel de zoom inicial
+        zoomControl: false  // Deshabilitar los botones de zoom
+    });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     }).addTo(map);
 
