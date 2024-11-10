@@ -141,6 +141,19 @@ document.getElementById('yearRange').addEventListener('input', function() {
     createMap(geojsonData, year);  // Update map based on the selected year
 });
 
+// Initialize the map and load data (as in your original code)
+initializeMap();
+loadData();
+
+// Add an event listener to the sound button
+document.getElementById('soundButton').addEventListener('click', function() {
+    const audio = new Audio('./sounds/level_1.mp3');  // Reemplaza con la ruta de tu archivo de sonido
+    audio.play().catch(error => {
+        console.error("Error playing sound: ", error);
+    });
+});
+
+
 // Initialize the map and load data
 initializeMap();
 loadData();
