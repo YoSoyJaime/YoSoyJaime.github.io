@@ -124,9 +124,23 @@ function processMilitaryData(data) {
 }
 
 function initializeMap() {
-    map = L.map('map').setView([20, 0], 2);
+    map = L.map('map').setView([20, 0], 2);  // Centro del mapa
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     }).addTo(map);
+
+    // Define los límites del mapa (en este ejemplo, se usa un rectángulo que abarca el mundo)
+    const southWest = L.latLng(-85, -180);  // Coordenadas para la esquina suroeste
+    const northEast = L.latLng(85, 180);    // Coordenadas para la esquina noreste
+    const bounds = L.latLngBounds(southWest, northEast);
+
+    // Establece los límites máximos del mapa
+    map.setMaxBounds(bounds);
+
+    // Ajusta el comportamiento para evitar que el mapa se "salga" de los límites
+    map.on('drag', function() {
+        map.panInsideBounds(bounds, { animate: true });
+    });
 
     addLegendToMap();
     fetchGeoJsonData();
