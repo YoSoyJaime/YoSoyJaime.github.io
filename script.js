@@ -65,12 +65,34 @@ function createMap(geojsonData, year) {
 
             layer.bindTooltip(`<strong>${country}</strong><br>Percentage of GDP: ${data.porcentaje.toFixed(2)}%`);
 
+            // Handle click event to play sound
             layer.on('click', function() {
                 showCountryDetails(country, year);
+                playSoundByPercentage(data.porcentaje);
             });
         }
     }).addTo(map);
 }
+
+// Function to play sound based on percentage
+function playSoundByPercentage(percentage) {
+    let sound;
+    if (percentage > 20) {
+        sound = new Audio('./sounds/level_5.mp3');
+    } else if (percentage > 10) {
+        sound = new Audio('./sounds/level_5.mp3');
+    } else if (percentage > 5) {
+        sound = new Audio('./sounds/level_4.mp3');
+    } else if (percentage > 2) {
+        sound = new Audio('./sounds/level_3.mp3');
+    } else if (percentage > 1) {
+        sound = new Audio('./sounds/level_2.mp3');
+    } else {
+        sound = new Audio('./sounds/level_1.mp3');
+    }
+    sound.play();
+}
+
 
 function loadMilitaryData() {
     fetch('./DataToUse.json')
