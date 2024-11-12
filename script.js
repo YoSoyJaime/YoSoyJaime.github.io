@@ -8,15 +8,20 @@ function addLegendToMap() {
 
     legend.onAdd = function (map) {
         const div = L.DomUtil.create('div', 'info legend'),
-              grades = [0.1, 1, 2, 5, 10, 20],
+              grades = [0, 1, 2, 3, 4, 5],  // Updated grades for intervals
               labels = [];
 
         div.innerHTML += '<strong>Percentage of GDP used for Military Expenditure (%)</strong><br>';
 
+        // Add "No data" entry
+        div.innerHTML +=
+            '<i style="background:' + getColor(0) + '; width: 18px; height: 18px; display: inline-block;"></i> No data<br>';
+
+        // Add remaining intervals
         for (let i = 0; i < grades.length; i++) {
             div.innerHTML +=
-                '<i style="background:' + getColor(grades[i]) + '; width: 18px; height: 18px; display: inline-block;"></i> ' +
-                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                '<i style="background:' + getColor(grades[i] + 0.1) + '; width: 18px; height: 18px; display: inline-block;"></i> ' +
+                (grades[i] === 0 ? '0 ' : grades[i]) + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
         }
 
         return div;
@@ -25,14 +30,15 @@ function addLegendToMap() {
     legend.addTo(map);
 }
 
+
 function getColor(percentage) {
-    return percentage > 20 ? '#800026' :
-           percentage > 10 ? '#BD0026' :
-           percentage > 5  ? '#E31A1C' :
-           percentage > 2  ? '#FC4E2A' :
-           percentage > 1  ? '#FD8D3C' :
-           percentage > 0.1 ? '#FFEDA0' :
-                             '#ccc';
+    return percentage > 5 ? '#800026' :         // Mayor a 5%
+           percentage > 4 ? '#BD0026' :         // Entre 4 y 5%
+           percentage > 3 ? '#E31A1C' :         // Entre 3 y 4%
+           percentage > 2 ? '#FC4E2A' :         // Entre 2 y 3%
+           percentage > 1 ? '#FD8D3C' :         // Entre 1 y 2%
+           percentage > 0 ? '#FFEDA0' :         // Mayor a 0 y menor o igual a 1 (Amarillo)
+                             '#ccc';            // Sin información (gris)
 }
 
 function createMap(geojsonData, militaryData, year) {
@@ -82,18 +88,20 @@ function playSoundByPercentage(percentage) {
     }
 
     let sound;
-    if (percentage > 20) {
+    if (percentage > 5) {
         sound = new Audio('./sounds/level_6.mp3');
-    } else if (percentage > 10) {
+    } else if (percentage > 4) {
         sound = new Audio('./sounds/level_5.mp3');
-    } else if (percentage > 5) {
+    } else if (percentage > 3) {
         sound = new Audio('./sounds/level_4.mp3');
     } else if (percentage > 2) {
         sound = new Audio('./sounds/level_3.mp3');
     } else if (percentage > 1) {
         sound = new Audio('./sounds/level_2.mp3');
+    } else if (percentage > 0) {
+        sound = new Audio('./sounds/level_1.mp3');
     } else {
-        sound = new Audio('./sounds/error.mp3');
+        sound = new Audio('./sounds/error.mp3');  // Sin información o 0%
     }
 
     currentSound = sound;  // Set the new sound as the current sound
