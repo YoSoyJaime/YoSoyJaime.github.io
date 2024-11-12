@@ -93,7 +93,7 @@ function playSoundByPercentage(percentage) {
     } else if (percentage > 1) {
         sound = new Audio('./sounds/level_2.mp3');
     } else {
-        sound = new Audio('./sounds/level_1.mp3');
+        sound = new Audio('./sounds/error.mp3');
     }
 
     currentSound = sound;  // Set the new sound as the current sound
