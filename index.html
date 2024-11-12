@@ -19,7 +19,27 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="script.js"></script>
+    <script type="module" src="interactividad.js"></script>
 
+
+    <section id="demos" class="invisible">
+  
+
+        <h2><br>Interacción con gestos de mano</h2>
+        <p>Usa cualquiera de tus manos para hacer gestos e iniciar con la exploración ! </br>Click <b>enable webcam</b> below and grant access to the webcam if prompted.</p>
+      
+        <div id="liveView" class="videoView">
+          <button id="webcamButton" class="mdc-button mdc-button--raised">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__label">ENABLE WEBCAM</span>
+          </button>
+          <div style="position: relative;">
+            <video id="webcam" autoplay playsinline></video>
+            <canvas class="output_canvas" id="output_canvas" width="1280" height="720" style="position: absolute; left: 0px; top: 0px;"></canvas>
+            <p id='gesture_output' class="output">
+          </div>
+        </div>
+      </section>
 
 </body>
 </html>
