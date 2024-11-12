@@ -1,7 +1,7 @@
 let map;  // Declare the map globally so we can reinitialize it on year change
 let geojsonLayer;  // Layer to hold the country data
-let militaryData = {};  // Store processed data for easy access
 let geojsonData;  // Store GeoJSON data globally for reuse
+let militaryData = {};  // Store processed data for easy access
 
 function addLegendToMap() {
     const legend = L.control({ position: 'bottomright' });
@@ -35,7 +35,7 @@ function getColor(percentage) {
                              '#ccc';
 }
 
-function createMap(geojsonData, year) {
+function createMap(geojsonData, militaryData, year) {
     if (geojsonLayer) {
         map.removeLayer(geojsonLayer);
     }
@@ -67,18 +67,23 @@ function createMap(geojsonData, year) {
 
             // Handle click event to play sound
             layer.on('click', function() {
-                showCountryDetails(country, year);
                 playSoundByPercentage(data.porcentaje);
             });
         }
     }).addTo(map);
 }
 
-// Function to play sound based on percentage
+let currentSound = null; // Global variable to track the current sound
+
 function playSoundByPercentage(percentage) {
+    if (currentSound) {
+        currentSound.pause();  // Stop the currently playing sound
+        currentSound.currentTime = 0;  // Reset the sound to the beginning
+    }
+
     let sound;
     if (percentage > 20) {
-        sound = new Audio('./sounds/level_5.mp3');
+        sound = new Audio('./sounds/level_6.mp3');
     } else if (percentage > 10) {
         sound = new Audio('./sounds/level_5.mp3');
     } else if (percentage > 5) {
@@ -90,23 +95,11 @@ function playSoundByPercentage(percentage) {
     } else {
         sound = new Audio('./sounds/level_1.mp3');
     }
-    sound.play();
+
+    currentSound = sound;  // Set the new sound as the current sound
+    currentSound.play();   // Play the new sound
 }
 
-
-function loadMilitaryData() {
-    fetch('./DataToUse.json')
-        .then(response => response.json())
-        .then(data => {
-            militaryData = processMilitaryData(data);
-            if (geojsonData) {
-                createMap(geojsonData, 2018);  // Create map with default year
-            }
-        })
-        .catch(error => {
-            console.error('Error loading military data:', error);
-        });
-}
 
 function processMilitaryData(data) {
     const processedData = {};
@@ -125,52 +118,50 @@ function processMilitaryData(data) {
 
 function initializeMap() {
     map = L.map('map', {
-        center: [20, 0],  // Centro del mapa
-        zoom: 2,         // Nivel de zoom inicial
-        zoomControl: false,  // Deshabilitar los botones de zoom
-        minZoom: 2,  // Límite mínimo de zoom
-        maxZoom: 10  // Límite máximo de zoom
+        center: [20, 0],  // Center of the map
+        zoom: 2,         // Initial zoom level
+        zoomControl: false,  // Disable zoom buttons
+        minZoom: 2,  // Minimum zoom level
+        maxZoom: 10  // Maximum zoom level
     });
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     }).addTo(map);
 
-    // Define los límites del mapa (en este ejemplo, se usa un rectángulo que abarca el mundo)
-    const southWest = L.latLng(-85, -180);  // Coordenadas para la esquina suroeste
-    const northEast = L.latLng(85, 180);    // Coordenadas para la esquina noreste
+    // Define the map bounds
+    const southWest = L.latLng(-85, -180);
+    const northEast = L.latLng(85, 180);
     const bounds = L.latLngBounds(southWest, northEast);
 
-    // Establece los límites máximos del mapa
     map.setMaxBounds(bounds);
-
-    // Ajusta el comportamiento para evitar que el mapa se "salga" de los límites
     map.on('drag', function() {
         map.panInsideBounds(bounds, { animate: true });
     });
 
     addLegendToMap();
-    fetchGeoJsonData();
-}
 
-function fetchGeoJsonData() {
-    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
-        .then(response => response.json())
-        .then(data => {
-            geojsonData = data;
-            if (militaryData && Object.keys(militaryData).length > 0) {
-                createMap(geojsonData, 2018);  // Create map with default year if data is loaded
-            }
-        })
-        .catch(error => {
-            console.error('Error loading GeoJSON data:', error);
-        });
+    // Fetch both GeoJSON and Military data
+    Promise.all([
+        fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json'),
+        fetch('./DataToUse.json')
+    ])
+    .then(([geojsonResponse, militaryResponse]) => Promise.all([geojsonResponse.json(), militaryResponse.json()]))
+    .then(([geojsonDataResponse, militaryDataResponse]) => {
+        console.log("GeoJSON and Military data loaded.");
+        geojsonData = geojsonDataResponse;
+        militaryData = processMilitaryData(militaryDataResponse);
+        createMap(geojsonData, militaryData, 2018); // Create map with default year
+    })
+    .catch(error => {
+        console.error('Error loading data:', error);
+    });
 }
 
 document.getElementById('yearRange').addEventListener('input', function() {
     const year = this.value;
     document.getElementById('yearLabel').innerText = year;
-    createMap(geojsonData, year);
+    createMap(geojsonData, militaryData, year);
 });
 
 // Initialize map and data loading
 initializeMap();
-loadMilitaryData();
