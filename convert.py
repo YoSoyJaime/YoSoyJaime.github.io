@@ -32,33 +32,42 @@ def make_json(csvFilePathGDP, csvFilePathMilitary, jsonFilePath):
         # be the primary key
         key = rows['Code']
         dataGDPJson[key] = rows
+        print(rows)
 
     for rows in csvReaderMilitary:
         
         # Assuming a column named 'No' to
         # be the primary key
         key = rows['Code']
-        
-        if (key in dataGDPJson.keys()) :
-            valueMilitary = (rows['2018'])
-            valueGdp = (dataGDPJson[key]['2018'])
-            if (valueMilitary == '' or valueGdp == ''):
-                porcentaje = 0;    
-            else:
-                porcentaje = (float(valueMilitary)/float(valueGdp))*100
+        year = 1960
+        infoByYear = {}
+        while year <= 2018 :
+            infoByYear[str(year)] = {}
+            if (key in dataGDPJson.keys()) :
+                valueMilitary = (rows[str(year)])
+                valueGdp = (dataGDPJson[key][str(year)])
 
-            if (valueMilitary == ''):
-                valueMilitary = 0
-            if (valueGdp == ''):
-                valueGdp = 0
+                if (valueMilitary == '' or valueGdp == ''):
+                    porcentaje = 0;    
+                else:
+                    porcentaje = (float(valueMilitary)/float(valueGdp))*100
 
+                if (valueMilitary == ''):
+                    valueMilitary = 0
+                if (valueGdp == ''):
+                    valueGdp = 0
+
+            infoByYear[str(year)] = {'MilitaryExpend': float(valueMilitary),
+                            'GDP': float(valueGdp),
+                            'porcentaje': porcentaje}
+            year +=1
             
-            dataFinal.append({'Name': rows['Name'],
-                              'CODE': key,
-                              'MilitaryExpend': float(valueMilitary),
-                              'GDP': float(valueGdp),
-                              'porcentaje': porcentaje})
-            
+        dataFinal.append({'Name': rows['Name'],
+                            'CODE': key,
+                            'Info': infoByYear})
+
+
+
         if (porcentaje > maximos[0]['porcentaje']):
             maximos[0] = {'Name': rows['Name'],
                           'CODE': key,

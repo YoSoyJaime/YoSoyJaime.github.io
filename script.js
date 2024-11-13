@@ -9,7 +9,7 @@ const topCountries = [
 const myPlot = document.getElementById('map');
 
 const countrie = countries.map(item => item.CODE);
-const porcentaje = countries.map(item => item.porcentaje);
+const porcentaje = countries.map(item => item.Info[2018].porcentaje);
 const names = countries.map(item => item.Name);
 
 // Crear datos para cada rango
@@ -144,4 +144,13 @@ var layout = {
     }
 };
 
-Plotly.newPlot(myPlot, data, layout, { scrollZoom: false, displayModeBar: false });
+function filter_and_unpack(rows, key, year) {
+    return rows.filter(row => row['year'] == year).map(row => row[key])
+    }
+
+function ActualizarMapa(data) {
+    Plotly.newPlot(myPlot, data, layout, { scrollZoom: false, displayModeBar: false });
+
+}
+
+ActualizarMapa(data)
