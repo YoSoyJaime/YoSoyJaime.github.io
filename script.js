@@ -3,6 +3,7 @@ let geojsonLayer;  // Layer to hold the country data
 let geojsonData;  // Store GeoJSON data globally for reuse
 let militaryData = {};  // Store processed data for easy access
 
+
 function addLegendToMap() {
     const legend = L.control({ position: 'bottomright' });
 
@@ -164,6 +165,7 @@ function initializeMap() {
         console.error('Error loading data:', error);
     });
 }
+
 
 document.getElementById('yearRange').addEventListener('input', function() {
     const year = this.value;

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Military Expenditure as Percentage of GDP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
@@ -15,7 +16,7 @@
         <div id="mapayCamara">
             
             <!-- Slider for Year Selection -->
-            <div id="map" style="width: 80%; height: 80vh;">
+            <div id="map" style="width: 80%; height: 80vh; position: relative;">
                 
                 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
                 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -23,21 +24,26 @@
                 <script src="script.js"></script>
                 <script type="module" src="interactividad.js"></script>
             </div>
-            <h1>ll</h1>
+            
             <div>
         
                 <h2><br>Interacción con gestos de mano</h2>
-                <p>Usa cualquiera de tus manos para hacer gestos e iniciar con la exploración ! </br>Click <b>enable webcam</b> below and grant access to the webcam if prompted.</p>
-                <div id="liveView" class="videoView">
-                  <button id="webcamButton" class="mdc-button mdc-button--raised">
-                    <span class="mdc-button__ripple"></span>
-                    <span class="mdc-button__label">ENABLE WEBCAM</span>
-                  </button>
-                  <div>
-                    <video id="webcam" autoplay playsinline></video>
-                    <canvas class="output_canvas" id="output_canvas" width="1280" height="720" ></canvas>
-                    <p id='gesture_output' class="output">
-                  </div>
+                
+                <div>
+
+                    <p>Usa cualquiera de tus manos para hacer gestos e iniciar con la exploración ! </br>Click <b>enable webcam</b> below and grant access to the webcam if prompted.</p>
+                    <div id="liveView" class="videoView">
+                      <button id="webcamButton" class="mdc-button mdc-button--raised">
+                        <span class="mdc-button__ripple"></span>
+                        <span class="mdc-button__label">ENABLE WEBCAM</span>
+                    </button>
+                    <div>
+                        <video id="webcam" autoplay playsinline></video>
+                        <canvas class="output_canvas" id="output_canvas" width="1280" height="720" ></canvas>
+                        <p id='gesture_output' class="output">
+                        </div>
+                    </div>
+                    <h4 id="accion">Accion seleccionada: </h4>
                 </div>
               
             </div>

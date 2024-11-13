@@ -20,7 +20,7 @@ h1 {
 
 /* Style for the slider */
 .slider-container {
-    text-align: center;
+    
     margin-bottom: 10px;
 }
 
@@ -47,10 +47,25 @@ input[type=range] {
     margin-right: 8px;
 }
 
-div {
-    display: inline;
+
+#mapayCamara {
+    display: flex;
 }
 
-div.mapayCamara {
-   display: inline;
+#webcam {
+    position: absolute;
+}
+
+.output_canvas {
+    position: absolute;
+}
+
+#gesture_output {
+    position: relative;
+    background-color: white;
+}
+
+#accion {
+    position: absolute;
+    margin-top: 5%;
 }

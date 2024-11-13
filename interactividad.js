@@ -100,7 +100,16 @@ import {
   
   let lastVideoTime = -1;
   let results = undefined;
+  const states = Object.freeze({
+    Nada: 0,
+    Filtro: 1,
+    Zoom: 2,
+    Mouse: 3
+});
+  let contador = parseFloat(document.getElementById("yearRange").value)
+  let actualState = 0;
   async function predictWebcam() {
+    ShowActionSelected(actualState)
     const webcamElement = document.getElementById("webcam");
     // Now let's start detecting the stream.
     if (runningMode === "IMAGE") {
@@ -147,13 +156,110 @@ import {
         results.gestures[0][0].score * 100
       ).toFixed(2);
       const handedness = results.handednesses[0][0].displayName;
-      gestureOutput.innerText = `GestureRecognizer: ${categoryName}\n Confidence: ${categoryScore} %\n Handedness: ${handedness}`;
+      gestureOutput.innerText = `GestureRecognizer: ${categoryName}\n Confidence: ${categoryScore} %\n `;
+      if (actualState == 0) {
+        AsignState(categoryName)
+      
+      }
+      if (actualState != 0 && categoryName == "ILoveYou" ) {
+        actualState = states.Nada
+      }
+      
+
+      if ( actualState == states.Filtro ) {
+
+        FiltrarInteractivo(categoryName);
+        document.getElementById("accion").innerText = Math.floor(contador).toString()
+
+      }
+
     } else {
       gestureOutput.style.display = "none";
     }
+
     // Call this function again to keep predicting when the browser is ready.
     if (webcamRunning === true) {
       window.requestAnimationFrame(predictWebcam);
     }
   }
   
+
+async function FiltrarInteractivo(categoryName) {
+  if (categoryName == "Victory") {
+    contador += 0.5;
+    
+    
+  }
+  if (categoryName == "Pointing_Up") {
+    contador += 0.05;
+    
+  }
+
+  if (categoryName == "Closed_Fist") {
+    contador -= 0.5;
+    
+  }
+
+  if (categoryName == "Thumb_Down") {
+    contador -= 0.05;
+    
+  }
+  if (contador > 2018) {
+    contador = 2018
+  }
+  if (contador < 1960) {
+    contador = 1960
+  }
+  document.getElementById("yearRange").value = Math.floor(contador).toString();
+  const actualizarMapa = new Event('input');
+  document.getElementById("yearRange").dispatchEvent(actualizarMapa)
+  
+  
+}
+
+async function AsignState(categoryName) {
+  if (categoryName == "Pointing_Up") {
+    //filtro
+    actualState = states.Filtro
+  }
+
+  if (categoryName == "Closed_Fist") {
+    //zoom
+    actualState = states.Zoom
+  }
+
+  if (categoryName == "Victory") {
+    //mouse
+    actualState = states.Mouse
+  }
+  if (categoryName == "ILoveYou") {
+    //nada
+    actualState = states.Nada
+  }
+}
+
+async function ShowActionSelected(state) {
+  const base = "Acciones escogida: "
+  
+
+  if (state == states.Filtro) {
+    document.getElementById("accion").innerText = base + "Filtrar por año"
+  }
+
+  else if (state == states.Zoom) {
+    document.getElementById("accion").innerText = base + "Explorando mapa"
+
+  }
+
+  else if (state == states.Mouse) {
+    document.getElementById("accion").innerText = base + "Mover mouse"
+
+  }
+
+  else {
+    
+    document.getElementById("accion").innerText = "Haz un gesto para seleccionar acción"
+    
+  }
+
+}
