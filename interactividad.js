@@ -172,6 +172,10 @@ import {
         document.getElementById("accion").innerText = Math.floor(contador).toString()
 
       }
+      if (actualState == states.Zoom) {
+        //document.getElementById("accion") = document.getElementById("map")
+        ExploreMap(categoryName);
+      }
 
     } else {
       gestureOutput.style.display = "none";
@@ -192,12 +196,11 @@ async function FiltrarInteractivo(categoryName) {
   }
   if (categoryName == "Pointing_Up") {
     contador += 0.05;
-    
   }
 
   if (categoryName == "Closed_Fist") {
     contador -= 0.5;
-    
+
   }
 
   if (categoryName == "Thumb_Down") {
@@ -262,4 +265,29 @@ async function ShowActionSelected(state) {
     
   }
 
+}
+
+async function ExploreMap(categoryName) {
+  
+  
+  
+
+  if (categoryName == "Pointing_Up") {
+    //filtro
+    document.getElementById("map").SetZoom(1)
+  }
+
+  if (categoryName == "Closed_Fist") {
+    //zoom
+    document.getElementById("map").L.SetZoom(0)
+  }
+
+  if (categoryName == "Victory") {
+    //mouse
+    document.getElementById("map").L.SetZoom(2)
+  }
+  
+  const actualizarMapa = new Event('update');
+  document.getElementById("map").L.dispatchEvent(actualizarMapa)
+  
 }
