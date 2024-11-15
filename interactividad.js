@@ -17,7 +17,7 @@ import {
     DrawingUtils
   } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
   
-  const demosSection = document.getElementById("demos");
+  
   let gestureRecognizer = GestureRecognizer;
   let runningMode = "IMAGE";
   let enableWebcamButton = HTMLButtonElement;
@@ -40,7 +40,7 @@ import {
       },
       runningMode: runningMode
     });
-    demosSection.classList.remove("invisible");
+    
   };
   createGestureRecognizer();
   
@@ -107,7 +107,10 @@ import {
     Mouse: 3
 });
   let contador = parseFloat(document.getElementById("yearRange").value)
+  let mapZoom = 2;
   let actualState = 0;
+  let yPosition = 10;
+  let xPosition = 0;
   async function predictWebcam() {
     ShowActionSelected(actualState)
     const webcamElement = document.getElementById("webcam");
@@ -194,7 +197,7 @@ async function FiltrarInteractivo(categoryName) {
     
     
   }
-  if (categoryName == "Pointing_Up") {
+  if (categoryName == "Thumb_Up") {
     contador += 0.05;
   }
 
@@ -267,27 +270,46 @@ async function ShowActionSelected(state) {
 
 }
 
+
+
 async function ExploreMap(categoryName) {
-  
-  
-  
 
-  if (categoryName == "Pointing_Up") {
-    //filtro
-    document.getElementById("map").SetZoom(1)
+  if (categoryName == "Closed_Fist" || categoryName == "Victory"){
+
+    if (categoryName == "Victory") { //ZOOM IN
+      mapZoom += 0.025;
+    }
+    if (categoryName == "Closed_Fist") { //ZOOM OUT
+      mapZoom -= 0.025;
+    }
+    
+
+    if (mapZoom > 10) {
+      mapZoom = 10
+    }
+    if (mapZoom < 2) {
+      mapZoom = 2
+    }
+
+    map.setZoom(Math.floor(mapZoom))
   }
 
-  if (categoryName == "Closed_Fist") {
-    //zoom
-    document.getElementById("map").L.SetZoom(0)
+  if (categoryName == "Thumb_Up" || categoryName == "Thumb_Down") {
+
+    if (categoryName == "Thumb_Up") {
+      yPosition += 0.5
+    }
+  
+  
+    if (categoryName == "Thumb_Down") {
+      yPosition -= 0.5
+      
+    }
+    
+
+    map.setView([Math.floor(yPosition), Math.floor(xPosition)])
   }
 
-  if (categoryName == "Victory") {
-    //mouse
-    document.getElementById("map").L.SetZoom(2)
-  }
-  
-  const actualizarMapa = new Event('update');
-  document.getElementById("map").L.dispatchEvent(actualizarMapa)
   
 }
+

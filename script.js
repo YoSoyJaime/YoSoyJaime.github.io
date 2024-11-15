@@ -127,7 +127,7 @@ function processMilitaryData(data) {
 
 function initializeMap() {
     map = L.map('map', {
-        center: [20, 0],  // Center of the map
+        center: [10, 0],  // Center of the map
         zoom: 2,         // Initial zoom level
         zoomControl: false,  // Disable zoom buttons
         minZoom: 2,  // Minimum zoom level
@@ -172,6 +172,13 @@ document.getElementById('yearRange').addEventListener('input', function() {
     document.getElementById('yearLabel').innerText = year;
     createMap(geojsonData, militaryData, year);
 });
+
+function SetZoomMap(digit) {
+    map.SetZoom(digit)
+}
+ 
+
+
 
 // Initialize map and data loading
 initializeMap();
