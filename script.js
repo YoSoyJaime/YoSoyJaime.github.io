@@ -30,11 +30,11 @@ function addLegendToMap() {
     legend.addTo(map);
 }
 
-function mapVelocityFromPercentage(value, inMin, outMin, OutMax{
-if (value < inMin) value = inMin;
-if (value > inMax) value = inMax;
+function mapVelocityFromPercentage(value){
+if (value < 0) value = 0;
+if (value > 10) value = 10;
 
-return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+return (return value * 150);
 }
 
 function getColor(percentage) {
